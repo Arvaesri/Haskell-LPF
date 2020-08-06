@@ -5,15 +5,17 @@ import System.Exit
 data Livro = Livro String String String deriving (Show,Read,Eq,Ord)
 type Biblioteca = [Livro]
 
+file_path = "BancoDeLivros.txt" -- Lembrar de alterar o caminho
 biblioteca1 = [Livro "UmaNoiteEstudando" "2010" "Biografia",Livro "LinguagemC" "1990" "Computacao",Livro "AsCronicasMarcianas" "1950" "Sci-Fi",Livro "Steinbush" "1998" "Gemometria"]
---biblioteca para testes
+
+-- biblioteca para testes
 -- Lembrar de Criar Um txt e alterar o nome nos metodos do menu
 
-
+-- Para executar o programa basta chamar a main no GHC
 
 -----------------------------------------------Main------------------------------------------------------
-menu = do --- Parte Estetica
-     apagarTela
+main = do --- Parte Estetica
+     apagar_tela
      putStrLn("\n\t  Bem Vindo A Biblioteca Virtual!!!")
      putStrLn("\n\t  Digite a Opcao Desejada:")
      putStrLn("          _____________________")
@@ -29,16 +31,16 @@ menu = do --- Parte Estetica
      putStrLn("Pressione Qualquer Tecla Para Continuar....")
      y <- getLine
      putStrLn("")
-     apagarTela
-     menu
+     apagar_tela
+     main
 
 
 
 chamaFuncoes :: String -> IO ()
-chamaFuncoes x | x == "1" = adicionarLivro 
-               | x == "2" = removerArquivo
-               | x == "3" = opcoesBuscar
-               | x == "4" = opcoesOrdenar
+chamaFuncoes x | x == "1" = adicionar_livro 
+               | x == "2" = remover_arquivo
+               | x == "3" = buscar_livro
+               | x == "4" = ordernar_livros
                | otherwise = exitSuccess
 
 
@@ -46,14 +48,21 @@ chamaFuncoes x | x == "1" = adicionarLivro
 
 printarLista :: Biblioteca -> IO () -- retorna a lista com \n
 printarLista (h:t) = do             -- Lembrar de tratar o caso do arquivo criado mas vazio
-     putStrLn ("\t   "++show h)
+     putStrLn ("\t   ---------------------------------------------------------------\n\t   |"++show h++"|")
      if (t == []) then do
      putStr("\n")
      else
         printarLista (t)
 
+print_arquivo = do -- Converte o handle->string->Biblioteca para poder executar o print do arquivo
+    handle <- openFile file_path ReadMode
+    conteudo <- hGetLine handle -- conteudo vai receber uma string
+    let dados = read conteudo
+    hClose handle
+    printarLista(dados::Biblioteca)
 
-apagarTela = do
+
+apagar_tela = do
      putStr ("\ESC[2J")
 
 
@@ -123,8 +132,8 @@ boubbleG n l = boubbleG (n-1) (trocaG(l))
 -----------------------------------------------------ARQUIVOS---------------------------------------------------
 
 -----------------------------------------------------BUSCAR-----------------------------------------------------
-opcoesBuscar = do
-     bool <- doesFileExist "BancoDeLivros.txt" --- Manda Print caso não exista
+buscar_livro = do
+     bool <- doesFileExist file_path --- Manda Print caso não exista
      if(bool) then do        
      putStrLn("\t Voce Deseja Buscar Por:\n")
      putStrLn("\t 1-Titulo")
@@ -141,7 +150,7 @@ opcoesBuscar = do
                     else do
                     putStrLn("Opcao Nao Existente..")
                     y <- getLine
-                    menu
+                    main
      else
         putStrLn("\t  Arquivo Nao Existe!!\n\t  Adicione Um Livro Antes de Buscar\n")
 -----------------------------------------------------Titulo-----------------------------------------------------
@@ -150,7 +159,7 @@ buscarArquivoTitulo = do -- por titulo
    putStr("Digite o Titulo do Livro que Deseja Buscar: ")
    titulo <- getLine
    putStrLn("")
-   lista <- converteLista
+   lista <- converte_arquivo_em_lista
    let livrosTitulo = buscar lista titulo
    putStrLn("Livros Encontrados: \n")
    if((buscar lista titulo)== []) then do
@@ -164,7 +173,7 @@ buscarArquivoGenero = do
     putStr("Digite o Genero Que Procura:")
     genero <- getLine
     putStrLn("")
-    lista <- converteLista
+    lista <- converte_arquivo_em_lista
     let livrosTitulo = buscar3 lista genero
     putStrLn("Livros Encontrados: \n")
     if((buscar3 lista genero)== []) then do
@@ -178,7 +187,7 @@ buscarArquivoAno = do
     putStr("Digite o Ano Que Procura:")
     ano <- getLine
     putStrLn("")
-    lista <- converteLista
+    lista <- converte_arquivo_em_lista
     let livrosTitulo = buscar2 lista ano
     putStrLn("Livros Encontrados: \n")
     if((buscar2 lista ano)== []) then do
@@ -187,8 +196,8 @@ buscarArquivoAno = do
        printarLista livrosTitulo
 -----------------------------------------------------Removendo da Lista--------------------------------------
 
-removerArquivo = do
-   bool <- doesFileExist "BancoDeLivros.txt"
+remover_arquivo = do
+   bool <- doesFileExist file_path
    if(bool) then do
        putStr("Digite o Titulo do Livro que Deseja Remover: ")
        titulo <- getLine
@@ -197,16 +206,16 @@ removerArquivo = do
        putStr("Digite o Genero do Livro que Deseja Remover: ")
        genero <- getLine
        putStrLn("")
-       lista <- converteLista
+       lista <- converte_arquivo_em_lista
        let listaAtualizada = remover lista (Livro titulo ano genero )
-       gravarLista listaAtualizada
+       gravar_livros listaAtualizada
        printarLista(listaAtualizada)
     else
         putStrLn("\t  Arquivo Nao Existe!!\n\t  Adicione Um Livro Antes de Remover\n")
  
 -----------------------------------------------------ORDENAR---------------------------------------------------
-opcoesOrdenar = do -------- Vai ordenar de acordo com a opcao selecionada
-    bool <- doesFileExist "BancoDeLivros.txt"
+ordernar_livros = do -------- Vai ordenar de acordo com a opcao selecionada
+    bool <- doesFileExist file_path
     if(bool) then do
         putStrLn("\t Voce Deseja Ordenar Por:")
         putStrLn("\t 1 - Titulo")
@@ -223,40 +232,40 @@ opcoesOrdenar = do -------- Vai ordenar de acordo com a opcao selecionada
                      else do
                      putStrLn("Opcao Nao Existente...")
                      y<-getLine
-                     menu
+                     main
     else
         putStrLn("\t  Arquivo Nao Existe!!\n\t  Adicione Um Livro Antes de Ordenar\n")                 
 
 
 ordenarArquivoTitulo = do -- pelo Titulo
-    lista <- converteLista
+    lista <- converte_arquivo_em_lista
     let listaOrdenada = boubbleT (length lista) lista
-    gravarLista listaOrdenada
+    gravar_livros listaOrdenada
     putStrLn("\t   Livros Ordenados:\n")
     printarLista listaOrdenada
 
 
 
 ordenarArquivoAno = do -- pelo Ano
-    lista <- converteLista
+    lista <- converte_arquivo_em_lista
     let listaOrdenada = boubbleA (length lista) lista
-    gravarLista listaOrdenada
+    gravar_livros listaOrdenada
     putStrLn("\t   Livros Ordenados:\n")
     printarLista listaOrdenada
 
 
 
 ordenarArquivoGenero = do -- pelo Genero
-    lista <- converteLista
+    lista <- converte_arquivo_em_lista
     let listaOrdenada = boubbleG (length lista) lista
-    gravarLista listaOrdenada
+    gravar_livros listaOrdenada
     putStrLn("\t   Livros Ordenados:\n")
     printarLista listaOrdenada
 
 ----------------------------------------------------------
 
-converteLista = do -- 
-     handle <- openFile "BancoDeLivros.txt" ReadMode
+converte_arquivo_em_lista = do -- 
+     handle <- openFile file_path ReadMode
      conteudo <- hGetLine handle -- se estiver vazio da uma exeption
      let lista = (read conteudo)::Biblioteca-- pega o conteudo do txt e converte 
      hClose handle
@@ -264,25 +273,25 @@ converteLista = do --
 
 
 
-gravarLista biblioteca = do
-     writeFile "BancoDeLivros.txt" (show biblioteca)
-     putStrLn("\t  Livro Gravado Com Sucesso") --solucao temporaria até arrumar o gravar livro para quando nao tiver arquivo
+gravar_livros biblioteca = do
+     writeFile file_path (show biblioteca)
+     putStrLn("\t\t\n  Arquivo Atualizado Gravado Com Sucesso\n")
 
 
 
-adicionarLivro = do
-    bool <- doesFileExist "BancoDeLivros.txt"
+adicionar_livro = do
+    bool <- doesFileExist file_path
     putStr("Digite o Titulo do Livro que Deseja Adiconar: ")
     titulo <- getLine
     putStr("Digite o Ano do Livro que Deseja Adiconar: ")
     ano <- getLine
     putStr("Digite o Genero do Livro que Deseja Adiconar: ")
     genero <- getLine
-    putStrLn("\n\t   Livros Disponiveis:\n")
-    putStrln(show(ano))
+    
     if(bool) then do
-        lib <- converteLista  -- pega os outos itens já adicionados e junta com o novo livro
-        gravarLista ((Livro titulo ano genero):lib)
-        printarLista((Livro titulo ano genero):lib)
+        lib <- converte_arquivo_em_lista  -- pega os outos itens já adicionados e junta com o novo livro
+        gravar_livros ((Livro titulo ano genero):lib)
     else
-        gravarLista ([Livro titulo ano genero]) -- Adicionar um print aqui mostrando o livro adicionado(dificil?)
+        gravar_livros ([Livro titulo ano genero])
+    putStr("\n\t   Livros Disponiveis:\n")
+    print_arquivo
