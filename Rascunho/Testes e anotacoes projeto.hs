@@ -1,13 +1,14 @@
 import System.IO
 import Data.Char
-
+import System.Directory
 
 data Livro = Livro String String  deriving (Show,Read,Eq,Ord)
 type Biblioteca = [Livro]
 listavazia = []
 biblioteca1 = [Livro "Cuidorise" "1996",Livro "Buidorise" "1995",Livro "Auidorise" "1994",Livro "steinbush" "1998"]
 
-main = do
+menu = do
+     apagarTela
      putStrLn("\n\n         Digite a Opcao Desejada:")
      putStrLn("          _____________________")
      putStrLn("         | 1 - Adicionar Livro:|")
@@ -26,23 +27,41 @@ main = do
      else putStrLn("Escolha Entre As Opcoes Mostradas Acima!!!")
 
 
+apagarTela = do
+     putStr ("\ESC[2J")
+
 opcao1 = do 
      putStr("Digite o Titulo do Livro que Deseja Adicionar: ")
      titulo <- getLine
      putStr("Digite o Ano do Livro que Deseja Adicionar: ")
      ano <- getLine
      adicionarLivro (Livro ("Titulo: "++titulo) ("Ano: "++ano))
-     main
+     menu
+
+
+printarLista :: Biblioteca -> IO () -- retorna a lista com \n
+printarLista (h:t) = do             -- Lembrar de tratar o caso do arquivo criado mas vazio
+     putStrLn ("\t   "++show h)
+     if (t == []) then do
+     putStr("\n")
+     else
+        printarLista (t)
 
 
 
--- opcao2 = do 
---      putStr("Digite o Nome Do Livro Que Deseja Remover:  ")
---      nome <- getLine
---      putStr("Digite o Ano Do Livro Que Deseja Remover:  ")
---      ano <- getLine
---      remover (converteEmLib) (Livro (nome) (ano)
-
+file = do
+    bool <- doesFileExist "BancoDeLivros.txt"
+    handle <- openFile "BancoDeLivros.txt" ReadMode
+    conteudo <- hGetLine handle -- 
+    let lista = read conteudo
+    hClose handle
+    if(bool) then do
+       printarLista lista
+    else
+        print("else")
+ 
+--TO DO: Tranformar o caminho do arquivo em uma variavel global
+    --   criar umma função para printar a lista de livros direto do arquivo
 
 
 converteLista = do
