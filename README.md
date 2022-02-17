@@ -9,7 +9,7 @@
   * Recursividade
 
 ### Projeto de Disciplina:
-   * Programa para armazenar uma lista de livros com titulo, ano e genero em um arquivo e acessar esse arquivo para efetuar buscas, ornenação, remoção e adição de livros
+   * Programa para armazenar uma lista de livros com titulo, ano e genero em um arquivo e acessar esse arquivo para efetuar buscas, ordenação, remoção e adição de livros
   
 ![Anotação 2020-08-06 014727](https://user-images.githubusercontent.com/49374221/89497537-e7a88700-d792-11ea-8a42-8884ae3ee0c6.png)
  #### Para executar o projeto basta chamar main pelo GHC (https://www.haskell.org/ghc/)
